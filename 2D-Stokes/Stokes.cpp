@@ -43,30 +43,96 @@ int main()
     int n_bas = rectangle_basis_function.size();
 
     /// 设置边界
-    double x0 = 0.0;
-    double y0 = 0.0;
+    double x0 = -1.0;
+    double y0 = -1.0;
     double x1 = 1.0;
     double y1 = 1.0;
     /// 设置剖分断数和节点总数
     int n = 20;
-    int dim = 2 * n * n + (n + 1) * (n + 1);
+    int dim1 = (2 * n - 1) * (2 * n - 1);
+    int dim = 2 * dim1 + (n + 1) * (n + 1);
 
     std::vector<unsigned int> nozeroperow(dim);
-    for (int i = 0; i <= 2 * n * n - 1; ++i)
-        nozeroperow[i] = 5;
-    for (int i = 2 * n * n - 1; i <= dim - 1; ++i)
-        nozeroperow[i] = 8;
-    nozeroperow[2 * n * n] = 2;
-    nozeroperow[2 * n * n + n] = 2;
-    nozeroperow[dim - 1] = 2;
-    nozeroperow[dim - 1 - n] = 2;
-    for (int i = 2; i <= n; ++i)
+    for (int i = 0; i <= 2 * n - 2; ++i)
+        for (int j = 0; j <= 2 * n - 2; ++j)
+        {
+            int index = i * (2 * n - 1) + j;
+            int index1 = i * (2 * n - 1) + j + dim1;
+            if (i % 2 == 0)
+            {
+                if (j % 2 == 0)
+                {
+                    nozeroperow[index] = 13;
+                    nozeroperow[index1] = 13;
+                }
+                else
+                {
+                    nozeroperow[index] = 15;
+                    nozeroperow[index1] = 15;
+                }
+            }
+            else
+            {
+                if (j % 2 == 0)
+                {
+                    nozeroperow[index] = 15;
+                    nozeroperow[index1] = 15;
+                }
+                else
+                {
+                    nozeroperow[index] = 18;
+                    nozeroperow[index1] = 18;
+                }
+            }
+            if (i == 0 || i == 2 * n - 2 || j == 0 || j == 2 * n - 2)
+            {
+                nozeroperow[index] -= 3;
+                nozeroperow[index1] -= 3;
+            }
+        }
+    nozeroperow[0] -= 2;
+    nozeroperow[2 * n - 2] -= 2;
+    nozeroperow[(2 * n - 1) * (2 * n - 1)] -= 2;
+    nozeroperow[(2 * n - 1) * (2 * n - 1) - (2 * n - 2)] -= 2;
+    nozeroperow[0 + dim1] -= 2;
+    nozeroperow[2 * n - 2 + dim1] -= 2;
+    nozeroperow[(2 * n - 1) * (2 * n - 1) + dim1] -= 2;
+    nozeroperow[(2 * n - 1) * (2 * n - 1) - (2 * n - 2) + dim1] -= 2;
+
+    for (int i = 2 * dim1; i <= dim; ++i)
+        nozeroperow[i] = 25;
+    for (int i = 2; i <= n - 3; ++i)
     {
-        nozeroperow[2 * n * n - 1 + i] = 4;
-        nozeroperow[2 * n * n + (n + 1) * (i - 1)] = 4;
-        nozeroperow[2 * n * n + (n + 1) * i - 1] = 4;
-        nozeroperow[2 * n * n - 1 + n * (n + 1) + i] = 4;
+        nozeroperow[2 * dim1 + i] = 10;
+        nozeroperow[dim - i] = 10;
+        nozeroperow[2 * dim1 + i * (n + 1)] = 10;
+        nozeroperow[2 * dim1 + (i + 1) * (n + 1) - 1] = 10;
+
+        nozeroperow[2 * dim1 + i + (n + 1)] = 20;
+        nozeroperow[dim - i - (n + 1)] = 20;
+        nozeroperow[2 * dim1 + i * (n + 1) + 1] = 20;
+        nozeroperow[2 * dim1 + (i + 1) * (n + 1) - 2] = 20;
     }
+
+    nozeroperow[2 * dim1] = 4;
+    nozeroperow[2 * dim1 + 1] = 8;
+    nozeroperow[2 * dim1 + n + 1] = 8;
+    nozeroperow[2 * dim1 + n + 2] = 16;
+
+    nozeroperow[2 * dim1 + n] = 4;
+    nozeroperow[2 * dim1 + n - 1] = 8;
+    nozeroperow[2 * dim1 + n + 1 + n] = 8;
+    nozeroperow[2 * dim1 + n + n] = 16;
+
+    nozeroperow[dim] = 4;
+    nozeroperow[dim - 1] = 8;
+    nozeroperow[dim - n - 1] = 8;
+    nozeroperow[dim - n - 2] = 16;
+
+    nozeroperow[dim - n] = 4;
+    nozeroperow[dim - n + 1] = 8;
+    nozeroperow[dim - n - 1 - n] = 8;
+    nozeroperow[dim - n - n] = 16;
 
     SparsityPatter sp_stiff_matrix(dim, nozeroperow);
 
@@ -96,4 +162,11 @@ int main()
     }
     sp_stiff_matrix.compress();
     SparseMatrix<double> stiff_mat(sp_stiff_matrix);
+
+    //构造A
+    for (int i = 0; i <= n * n - 1; ++i)
+    {
+        int index1 = i;
+        int index2 = n * n - 1 + i;
+    }
 }
